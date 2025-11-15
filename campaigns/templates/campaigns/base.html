@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Campaign System{% endblock %}</title>
+
+  <!-- Materialize CSS (for basic grid/buttons/icons only) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+  />
+  <!-- Material Icons -->
+  <link
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    rel="stylesheet"
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    :root {
+      /* Light theme */
+      --bg-body: radial-gradient(circle at top, #f5f3ff 0, #eef2ff 40%, #e2f3ff 100%);
+      --bg-card: #ffffff;
+      --text-main: #111827;
+      --nav-gradient: linear-gradient(90deg, #8b5cf6, #6366f1, #22c1c3);
+      --sidenav-bg: #f9fafb;
+      --badge-bg: rgba(219, 234, 254, 0.9);
+      --badge-border: rgba(129, 140, 248, 0.8);
+      --label-color: #4b5563;
+      --input-border-focus: #4f46e5;
+    }
+
+    body.dark-theme {
+      --bg-body: radial-gradient(circle at top, #020617 0, #020617 40%, #0b1120 100%);
+      --bg-card: #020617;
+      --text-main: #e5e7eb;
+      --nav-gradient: linear-gradient(90deg, #0f172a, #1e293b, #0369a1);
+      --sidenav-bg: #020617;
+      --badge-bg: rgba(30, 64, 175, 0.3);
+      --badge-border: rgba(96, 165, 250, 0.8);
+      --label-color: #cbd5f5;
+      --input-border-focus: #60a5fa;
+    }
+
+    body {
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .neon-blue {
+      color: #2563eb;
+      text-shadow: 0 0 4px rgba(59, 130, 246, 0.6);
+      font-weight: 600;
+    }
+
+    nav .nav-wrapper {
+      background: var(--nav-gradient);
+      box-shadow: 0 4px 14px rgba(148, 163, 184, 0.6);
+    }
+
+    nav .nav-wrapper ul li a {
+      font-size: 0.85rem;
+    }
+
+    /* SIDENAV BASE */
+    .sidenav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 270px;
+      height: 100vh;
+      background: var(--sidenav-bg);
+      box-shadow: 4px 0 12px rgba(148, 163, 184, 0.5);
+      transform: translateX(-100%);
+      transition: transform 0.25s ease-out;
+      z-index: 1002;
+      overflow-y: auto;
+    }
+
+    .sidenav.is-open {
+      transform: translateX(0);
+    }
+
+    .sidenav .user-view {
+      padding: 16px;
+      background: linear-gradient(135deg, #ede9fe, #e0f2fe);
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    body.dark-theme .sidenav .user-view {
+      background: linear-gradient(135deg, #0f172a, #0b1120);
+      border-bottom-color: #1f2937;
+    }
+
+    .sidenav .user-view .name {
+      color: #4c1d95;
+      font-weight: 600;
+    }
+
+    .sidenav .user-view .email {
+      color: #1e3a8a;
+    }
+
+    body.dark-theme .sidenav .user-view .name,
+    body.dark-theme .sidenav .user-view .email {
+      color: #e5e7eb;
+    }
+
+    .sidenav a {
+      color: var(--text-main);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      height: 48px;
+    }
+
+    .sidenav a i {
+      color: #4f46e5;
+      margin-right: 10px;
+    }
+
+    .sidenav a:hover {
+      background-color: rgba(129, 140, 248, 0.12);
+    }
+
+    /* OVERLAY */
+    #menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 1001;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
+    }
+
+    #menu-overlay.is-visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .main-layout {
+      display: block;
+    }
+
+    .main-content {
+      padding: 24px;
+      max-width: 1200px;
+      margin: 20px auto;
+    }
+
+    .card.neon-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid rgba(129, 140, 248, 0.4);
+      box-shadow:
+        0 10px 20px rgba(15, 23, 42, 0.35),
+        0 0 0 1px rgba(59, 130, 246, 0.1);
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .btn-neon {
+      background: linear-gradient(90deg, #6366f1, #0ea5e9);
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+    }
+
+    .btn-neon:hover {
+      filter: brightness(1.05);
+    }
+
+    .quarter-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: #1e3a8a;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    body.dark-theme .quarter-badge {
+      color: #e5e7eb;
+    }
+
+    .message-panel {
+      border-radius: 10px;
+      background: #eef2ff;
+      border: 1px solid rgba(129, 140, 248, 0.6);
+      color: #1f2937;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+    }
+
+    body.dark-theme .message-panel {
+      background: #020617;
+      border-color: rgba(59, 130, 246, 0.6);
+      color: #e5e7eb;
+    }
+
+    input[type=text],
+    input[type=email],
+    input[type=datetime-local],
+    input[type=number],
+    textarea,
+    select {
+      color: var(--text-main) !important;
+    }
+
+    label {
+      color: var(--label-color) !important;
+    }
+
+    input[type=text]:focus,
+    input[type=email]:focus,
+    input[type=datetime-local]:focus,
+    textarea:focus {
+      border-bottom: 1px solid var(--input-border-focus) !important;
+      box-shadow: 0 1px 0 0 var(--input-border-focus) !important;
+    }
+
+    ::placeholder {
+      color: #9ca3af !important;
+    }
+
+    .code-area {
+      font-family: "Fira Code", "Consolas", monospace;
+      background: #f9fafb;
+      color: #111827 !important;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    body.dark-theme .code-area {
+      background: #020617;
+      color: #e5e7eb !important;
+    }
+
+    /* Language select in navbar */
+    .lang-select-wrapper {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .lang-select-wrapper select {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 0.8rem;
+      padding-right: 18px;
+    }
+
+    .lang-select-wrapper select:focus {
+      outline: none;
+      border-bottom: 1px solid transparent !important;
+      box-shadow: none !important;
+    }
+
+    .lang-select-label {
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      margin-right: 4px;
+    }
+
+    /* Collapsible in sidebar (pure CSS baseline) */
+    .collapsible-header-btn {
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      padding: 0 16px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .collapsible-header-btn i.material-icons:first-child {
+      margin-right: 10px;
+      color: #4f46e5;
+    }
+
+    .collapsible-header-btn:hover,
+    .collapsible-header-btn:focus-visible {
+      background-color: rgba(129, 140, 248, 0.12);
+      outline: none;
+    }
+
+    .collapsible-body {
+      padding: 0;
+      display: none;
+    }
+
+    .collapsible-body.is-open {
+      display: block;
+    }
+
+    .collapsible-body ul {
+      padding: 4px 0 8px 0;
+    }
+
+    .collapsible-body li a {
+      padding-left: 40px;
+      font-size: 0.95rem;
+    }
+
+    @media (min-width: 992px) {
+      /* Optional: keep content shifted if you want fixed sidenav on desktop
+         For now we keep it overlay-style everywhere */
+    }
+
+    select {
+  display: block !important;
+  background: var(--bg-card);
+  border: 1px solid rgba(129, 140, 248, 0.8) !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+  color: var(--text-main) !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%233b82f6' height='24' viewBox='0 0 24 24' width='24'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 18px;
+}
+
+select:focus {
+  border-color: var(--input-border-focus) !important;
+  box-shadow: 0 0 8px var(--input-border-focus) !important;
+}
+
+/* Dark */
+body.dark-theme select {
+  background: #0b1120 !important;
+  border-color: #3b82f6 !important;
+  color: #e5e7eb !important;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav aria-label="Top navigation">
+    <div class="nav-wrapper">
+
+      <!-- Burger button: toggles sidebar -->
+      <button
+        id="menu-toggle"
+        class="btn-flat"
+        style="margin-left:10px; border:none; background:none;"
+        aria-label="Toggle side menu"
+        aria-controls="side-menu"
+        aria-expanded="false"
+      >
+        <i class="material-icons white-text">menu</i>
+      </button>
+
+      <!-- Brand -->
+      <a href="{% url 'campaigns:dashboard' %}" class="brand-logo" style="padding-left:60px;">
+        <span class="neon-blue">Campaign System</span>
+      </a>
+
+      <!-- Right side: notification + theme toggle + language -->
+      <ul class="right hide-on-med-and-down" style="margin-right:20px;">
+
+        <!-- Notifications / quarter counts -->
+        <li>
+          <a href="{% url 'campaigns:campaign_list' %}"
+             class="tooltipped"
+             data-position="bottom"
+             data-tooltip="Planned (scheduled) campaigns per quarter this year">
+            <i class="material-icons white-text">notifications</i>
+          </a>
+        </li>
+        <li><span class="quarter-badge">Q1: {{ planned_quarter_counts.q1|default:0 }}</span></li>
+        <li><span class="quarter-badge">Q2: {{ planned_quarter_counts.q2|default:0 }}</span></li>
+        <li><span class="quarter-badge">Q3: {{ planned_quarter_counts.q3|default:0 }}</span></li>
+        <li><span class="quarter-badge">Q4: {{ planned_quarter_counts.q4|default:0 }}</span></li>
+
+        <!-- Theme toggle -->
+        <li>
+          <a href="#" id="theme-toggle" class="tooltipped" data-position="bottom" data-tooltip="Toggle dark / light">
+            <i class="material-icons white-text" id="theme-toggle-icon">brightness_4</i>
+          </a>
+        </li>
+
+        <!-- Language switcher -->
+        <li>
+          <form id="language-form" method="post" action="{% url 'set_language' %}" style="margin:0; padding:0;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <div class="lang-select-wrapper">
+              <span class="lang-select-label">Lang</span>
+              <select name="language" id="language-select">
+                <option value="en">EN</option>
+                <option value="ta">TA</option>
+              </select>
+            </div>
+          </form>
+        </li>
+
+      </ul>
+    </div>
+  </nav>
+
+  <!-- OVERLAY -->
+  <div id="menu-overlay" aria-hidden="true"></div>
+
+  <!-- SIDEBAR (pure JS) -->
+  <aside
+    id="side-menu"
+    class="sidenav"
+    role="navigation"
+    aria-label="Side menu"
+    aria-hidden="true"
+  >
+    <div class="user-view">
+      <span class="name">Bulk Email Engine</span><br/>
+      <span class="email">Internal Campaign Manager</span>
+    </div>
+
+    <!-- Simple direct link -->
+    <a href="{% url 'campaigns:dashboard' %}">
+      <i class="material-icons">dashboard</i>Dashboard
+    </a>
+
+    <!-- Collapsible group for campaign-related links -->
+    <div>
+      <button
+        class="collapsible-header-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="campaigns-section"
+      >
+        <i class="material-icons">email</i>
+        <span style="flex:1 1 auto;">Campaigns</span>
+        <i class="material-icons" aria-hidden="true">expand_more</i>
+      </button>
+      <div id="campaigns-section" class="collapsible-body" hidden>
+        <ul>
+          <li>
+            <a href="{% url 'campaigns:campaign_list' %}">
+              <i class="material-icons">list</i>All Campaigns
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'campaigns:campaign_create' %}">
+              <i class="material-icons">add_circle</i>Create Campaign
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'campaigns:recipient_upload' %}">
+              <i class="material-icons">cloud_upload</i>Upload Recipients
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'campaigns:bounce_list' %}">
+              <i class="material-icons">report_problem</i>Failed Reports
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-layout">
+    <div class="main-content">
+      {% if messages %}
+        <div class="message-panel">
+          {% for m in messages %}
+            <p>{{ m }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <!-- Only jQuery if you really need it for other things; NOT used for menu -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // ===== PURE JS SIDEMENU =====
+      const body = document.body;
+      const menuToggle = document.getElementById('menu-toggle');
+      const sideMenu = document.getElementById('side-menu');
+      const menuOverlay = document.getElementById('menu-overlay');
+
+      function openMenu() {
+        sideMenu.classList.add('is-open');
+        sideMenu.setAttribute('aria-hidden', 'false');
+        menuOverlay.classList.add('is-visible');
+        menuOverlay.setAttribute('aria-hidden', 'false');
+        menuToggle.setAttribute('aria-expanded', 'true');
+      }
+
+      function closeMenu() {
+        sideMenu.classList.remove('is-open');
+        sideMenu.setAttribute('aria-hidden', 'true');
+        menuOverlay.classList.remove('is-visible');
+        menuOverlay.setAttribute('aria-hidden', 'true');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      }
+
+      if (menuToggle && sideMenu && menuOverlay) {
+        menuToggle.addEventListener('click', function () {
+          const isOpen = sideMenu.classList.contains('is-open');
+          if (isOpen) {
+            closeMenu();
+          } else {
+            openMenu();
+          }
+        });
+
+        menuOverlay.addEventListener('click', closeMenu);
+
+        // Close on Esc
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' || e.key === 'Esc') {
+            if (sideMenu.classList.contains('is-open')) {
+              closeMenu();
+              menuToggle.focus();
+            }
+          }
+        });
+      }
+
+      // ===== PURE JS COLLAPSIBLE =====
+      const collapsibleBtn = document.querySelector('.collapsible-header-btn');
+      const collapsibleBody = document.getElementById('campaigns-section');
+
+      if (collapsibleBtn && collapsibleBody) {
+        collapsibleBtn.addEventListener('click', function () {
+          const isExpanded = collapsibleBtn.getAttribute('aria-expanded') === 'true';
+          collapsibleBtn.setAttribute('aria-expanded', String(!isExpanded));
+
+          if (isExpanded) {
+            collapsibleBody.classList.remove('is-open');
+            collapsibleBody.hidden = true;
+          } else {
+            collapsibleBody.classList.add('is-open');
+            collapsibleBody.hidden = false;
+          }
+        });
+      }
+
+      // ===== THEME TOGGLE =====
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = document.getElementById('theme-toggle-icon');
+      const savedTheme = localStorage.getItem('theme');
+
+      if (savedTheme === 'dark') {
+        body.classList.add('dark-theme');
+        if (themeIcon) themeIcon.textContent = 'brightness_7';
+      }
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', function (e) {
+          e.preventDefault();
+          body.classList.toggle('dark-theme');
+          const isDark = body.classList.contains('dark-theme');
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+          if (themeIcon) {
+            themeIcon.textContent = isDark ? 'brightness_7' : 'brightness_4';
+          }
+        });
+      }
+
+      // ===== LANGUAGE AUTO-SUBMIT =====
+      const langSelectEl = document.getElementById('language-select');
+      const langForm = document.getElementById('language-form');
+      if (langSelectEl && langForm) {
+        langSelectEl.addEventListener('change', function () {
+          langForm.submit();
+        });
+      }
+    });
+
+    // Make labels float when input already has value
+const inputs = document.querySelectorAll('input, textarea, select');
+
+inputs.forEach((input) => {
+  if (input.value && input.value.length > 0) {
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) label.classList.add('active');
+  }
+
+  // When user types, float label immediately
+  input.addEventListener("input", () => {
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) label.classList.add("active");
+  });
+});
+
+  </script>
+</body>
+</html>

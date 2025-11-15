@@ -1,0 +1,171 @@
+{% extends "campaigns/base.html" %}
+{% load i18n %}
+{% block title %}Dashboard | Campaign System{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- Campaign count stat cards -->
+  <div class="col s12 m3">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">Total Campaigns</span>
+        <h4 class="neon-blue">{{ stats.total|default:0 }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col s12 m3">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">Scheduled</span>
+        <h4 class="blue-text text-lighten-3">{{ stats.scheduled|default:0 }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col s12 m3">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">In Progress</span>
+        <h4 class="cyan-text text-lighten-3">{{ stats.in_progress|default:0 }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col s12 m3">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">Completed</span>
+        <h4 class="green-text text-lighten-3">{{ stats.completed|default:0 }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Global delivery stats -->
+<div class="row">
+  <div class="col s12 m4">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">Total Recipients</span>
+        <h4 class="neon-blue">{{ stats.total_recipients|default:0 }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col s12 m4">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">Sent Count</span>
+        <h4 class="blue-text text-lighten-3">{{ stats.total_sent|default:0 }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col s12 m4">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">Failed Count</span>
+        <h4 class="red-text text-lighten-2">{{ stats.total_failed|default:0 }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick actions row -->
+<div class="row">
+  <div class="col s12 m4">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">Create Campaign</span>
+        <p>Create a new bulk email campaign with schedule & content.</p>
+      </div>
+      <div class="card-action">
+        <a href="{% url 'campaigns:campaign_create' %}" class="btn btn-neon waves-effect">
+          New Campaign
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col s12 m4">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">Recipients</span>
+        <p>Upload or refresh your recipient list via CSV.</p>
+      </div>
+      <div class="card-action">
+        <a href="{% url 'campaigns:recipient_upload' %}" class="btn btn-neon waves-effect">
+          Upload CSV
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col s12 m4">
+    <div class="card neon-card">
+      <div class="card-content">
+        <span class="card-title">Auto Trigger</span>
+        <p>Sending is auto-managed by Celery Beat, but you can also manually trigger.</p>
+      </div>
+      <div class="card-action">
+        <a href="{% url 'campaigns:campaign_list' %}" class="btn btn-neon waves-effect">
+          View & Trigger Campaigns
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent campaigns table -->
+<div class="card neon-card">
+  <div class="card-content">
+    <span class="card-title">Recent Campaigns</span>
+    <table class="highlight responsive-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Subject</th>
+          <th>Status</th>
+          <th>Status Summary</th>
+          <th>Recipients</th>
+          <th>Sent</th>
+          <th>Failed</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for c in recent_campaigns %}
+        <tr>
+          <!-- Clicking on campaign name goes to detailed view -->
+          <td>
+            <a href="{% url 'campaigns:campaign_detail' c.id %}">
+              {{ c.name }}
+            </a>
+          </td>
+          <td>{{ c.subject }}</td>
+          <td><span class="chip-status">{{ c.status }}</span></td>
+
+          <td>
+            {{ c.sent_count_|default:0 }} / {{ c.total_recipients_|default:0 }} sent
+          </td>
+
+          <td>{{ c.total_recipients_|default:0 }}</td>
+          <td>{{ c.sent_count_|default:0 }}</td>
+          <td class="red-text text-darken-1">{{ c.failed_count_|default:0 }}</td>
+
+          <td>
+            <a href="{% url 'campaigns:campaign_update' c.id %}" class="btn-flat waves-effect">
+              <i class="material-icons tiny">edit</i>
+            </a>
+            <a href="{% url 'campaigns:campaign_delete' c.id %}" class="btn-flat waves-effect red-text">
+              <i class="material-icons tiny">delete</i>
+            </a>
+            <a href="{% url 'campaigns:campaign_trigger_now' c.id %}" class="btn-flat waves-effect teal-text">
+              <i class="material-icons tiny">flash_on</i>
+            </a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="8">No campaigns yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

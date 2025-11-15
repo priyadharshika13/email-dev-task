@@ -1,0 +1,24 @@
+{% extends "campaigns/base.html" %}
+{% block title %}Delete Recipient | Campaign System{% endblock %}
+
+{% block content %}
+<div class="card neon-card">
+  <div class="card-content">
+    <span class="card-title red-text text-darken-1">Delete Recipient</span>
+    <p>
+      Are you sure you want to delete recipient
+      <strong>{{ recipient.name }} &lt;{{ recipient.email }}&gt;</strong>?
+    </p>
+    <form method="post" style="margin-top:16px;">
+      {% csrf_token %}
+      <button type="submit" class="btn red darken-2 waves-effect">
+        <i class="material-icons left">delete</i>
+        Delete
+      </button>
+      <a href="{% url 'campaigns:recipient_upload' %}" class="btn-flat waves-effect">
+        Cancel
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}

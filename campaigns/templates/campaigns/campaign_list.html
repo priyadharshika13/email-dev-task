@@ -1,0 +1,54 @@
+{% extends "campaigns/base.html" %}
+{% block title %}Campaigns | Campaign System{% endblock %}
+
+{% block content %}
+<div class="card neon-card">
+  <div class="card-content">
+    <span class="card-title">All Campaigns</span>
+    <div class="right-align" style="margin-bottom: 10px;">
+      <a href="{% url 'campaigns:campaign_create' %}" class="btn btn-neon waves-effect">
+        <i class="material-icons left">add</i> New Campaign
+      </a>
+    </div>
+
+    <table class="highlight responsive-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Subject</th>
+          <th>Scheduled</th>
+          <th>Status</th>
+          <th>Sent/Total</th>
+          <th>Failed</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for c in campaigns %}
+        <tr>
+          <td><a href="{% url 'campaigns:campaign_detail' c.id %}">{{ c.name }}</a></td>
+          <td>{{ c.subject }}</td>
+          <td>{{ c.scheduled_time }}</td>
+          <td><span class="chip-status">{{ c.status }}</span></td>
+          <td>{{ c.sent_count }}/{{ c.total_recipients }}</td>
+          <td>{{ c.failed_count }}</td>
+          <td>
+            <a href="{% url 'campaigns:campaign_update' c.id %}" class="btn-flat waves-effect">
+              <i class="material-icons tiny">edit</i>
+            </a>
+            <a href="{% url 'campaigns:campaign_delete' c.id %}" class="btn-flat waves-effect red-text">
+              <i class="material-icons tiny">delete</i>
+            </a>
+            <a href="{% url 'campaigns:campaign_trigger_now' c.id %}" class="btn-flat waves-effect teal-text">
+              <i class="material-icons tiny">flash_on</i>
+            </a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7">No campaigns found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

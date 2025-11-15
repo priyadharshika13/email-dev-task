@@ -1,0 +1,56 @@
+{% extends "campaigns/base.html" %}
+{% block title %}
+  {% if mode == "create" %}
+    New Campaign
+  {% else %}
+    Update Campaign
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card neon-card">
+  <div class="card-content">
+    <span class="card-title neon-blue">
+      {% if mode == "create" %}
+        Create New Campaign
+      {% else %}
+        Update Campaign
+      {% endif %}
+    </span>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="row">
+        {% for field in form %}
+          <div class="input-field col s12">
+            {{ field.label_tag }}
+            {{ field }}
+
+            {% if field.help_text %}
+              <span class="helper-text">{{ field.help_text }}</span>
+            {% endif %}
+
+            {% for error in field.errors %}
+              <span class="helper-text red-text">{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-neon waves-effect">
+        <i class="material-icons left">send</i>
+        {% if mode == "create" %}
+          Create Campaign
+        {% else %}
+          Update Campaign
+        {% endif %}
+      </button>
+
+      <a href="{% url 'campaigns:campaign_list' %}" class="btn-flat waves-effect">
+        Cancel
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}

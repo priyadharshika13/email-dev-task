@@ -1,0 +1,33 @@
+{% extends "campaigns/base.html" %}
+{% block title %}Edit Recipient | Campaign System{% endblock %}
+
+{% block content %}
+<div class="card neon-card">
+  <div class="card-content">
+    <span class="card-title">Edit Recipient</span>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="row">
+        {% for field in form %}
+          <div class="input-field col s12 m6">
+            {{ field.label_tag }}
+            {{ field }}
+            {% for error in field.errors %}
+              <span class="helper-text red-text">{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-neon waves-effect">
+        <i class="material-icons left">save</i>
+        Save Changes
+      </button>
+      <a href="{% url 'campaigns:recipient_upload' %}" class="btn-flat waves-effect">
+        Cancel
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}

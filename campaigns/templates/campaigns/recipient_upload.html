@@ -1,0 +1,185 @@
+{% extends "campaigns/base.html" %}
+{% load static %}
+{% block title %}Recipients | Campaign System{% endblock %}
+
+{% block content %}
+
+<!-- Upload card -->
+<div class="card neon-card">
+  <div class="card-content">
+    <span class="card-title">Upload Recipients CSV</span>
+    <p class="grey-text text-darken-1" style="margin-bottom: 18px;">
+      Upload a CSV file with columns:
+      <code>name,email,subscription_status</code>
+      (subscription_status = subscribed / unsubscribed)
+    </p>
+
+    <!-- SAMPLE FILE DOWNLOAD BUTTON -->
+    <div style="margin-bottom: 18px;">
+      <a href="{% static 'sample_recipients.csv' %}"
+         class="btn btn-neon waves-effect"
+         download>
+        <i class="material-icons left">file_download</i>
+        Download Sample CSV
+      </a>
+    </div>
+
+    <!-- Upload form -->
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="upload">
+
+      <!-- File picker -->
+      <div class="file-field input-field">
+        <div class="btn btn-neon">
+          <span>Select File</span>
+          {{ form.file }}
+        </div>
+        <div class="file-path-wrapper">
+          <input class="file-path validate" type="text" placeholder="Choose CSV file">
+        </div>
+        {% for error in form.file.errors %}
+          <span class="helper-text red-text">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <!-- Group selection / creation -->
+      <div class="row">
+        <!-- Existing group -->
+        <div class="input-field col s12 m6">
+          {{ form.group.label_tag }}
+          {{ form.group }}
+          {% if form.group.help_text %}
+            <span class="helper-text">{{ form.group.help_text }}</span>
+          {% endif %}
+          {% for error in form.group.errors %}
+            <span class="helper-text red-text">{{ error }}</span>
+          {% endfor %}
+        </div>
+
+        <!-- New group name -->
+        <div class="input-field col s12 m6">
+          {{ form.new_group_name.label_tag }}
+          {{ form.new_group_name }}
+          {% if form.new_group_name.help_text %}
+            <span class="helper-text">{{ form.new_group_name.help_text }}</span>
+          {% endif %}
+          {% for error in form.new_group_name.errors %}
+            <span class="helper-text red-text">{{ error }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <p class="grey-text text-darken-1" style="margin-bottom: 12px;">
+        Tip: Either choose an <strong>existing group</strong> or enter a
+        <strong>new group name</strong>. All valid recipients from this CSV
+        will be attached to that group.
+      </p>
+
+      <button type="submit" class="btn btn-neon waves-effect">
+        <i class="material-icons left">cloud_upload</i>
+        Upload Recipients
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Attach recipients to campaign -->
+<div class="card neon-card">
+  <div class="card-content">
+    <span class="card-title">Add Recipients to Campaign</span>
+    <p class="grey-text text-darken-1" style="margin-bottom: 12px;">
+      This will attach <strong>all subscribed recipients</strong> (optionally
+      filtered by groups via campaign settings) to the selected campaign.
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="attach">
+
+      <div class="row">
+        <div class="input-field col s12 m6">
+          <select name="campaign_id" required>
+            <option value="" disabled selected>Select a campaign</option>
+            {% for c in campaigns %}
+              <option value="{{ c.id }}">{{ c.name }} — {{ c.subject }}</option>
+            {% endfor %}
+          </select>
+          <label>Select Campaign</label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-neon waves-effect">
+        <i class="material-icons left">playlist_add</i>
+        Add Recipients to Campaign
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Recipient List -->
+<div class="card neon-card">
+  <div class="card-content">
+    <span class="card-title">Recipient List</span>
+
+    <table class="highlight responsive-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Groups</th>   <!-- 👈 NEW GROUP COLUMN -->
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+<tbody>
+  {% for r in recipients %}
+  <tr>
+    <td>{{ r.name }}</td>
+    <td>{{ r.email }}</td>
+
+    <td>
+      {% if r.subscription_status == 'subscribed' %}
+        <span class="new badge green" data-badge-caption="Subscribed"></span>
+      {% else %}
+        <span class="new badge red" data-badge-caption="Unsubscribed"></span>
+      {% endif %}
+    </td>
+
+    <!-- 👇 Show ALL groups for this recipient -->
+    <td>
+      {% if r.groups.all %}
+        {% for g in r.groups.all %}
+          <span class="new badge blue" data-badge-caption="{{ g.name }}"></span>
+        {% empty %}
+          <span class="grey-text text-darken-1">—</span>
+        {% endfor %}
+      {% else %}
+        <span class="grey-text text-darken-1">—</span>
+      {% endif %}
+    </td>
+
+    <td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
+    <td>
+      <a href="{% url 'campaigns:recipient_edit' r.id %}" class="btn-flat waves-effect" title="Edit">
+        <i class="material-icons tiny">edit</i>
+      </a>
+      <a href="{% url 'campaigns:recipient_delete' r.id %}" class="btn-flat waves-effect red-text" title="Delete">
+        <i class="material-icons tiny">delete</i>
+      </a>
+    </td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="6" class="grey-text text-darken-1">No recipients uploaded yet.</td>
+  </tr>
+  {% endfor %}
+</tbody>
+    </table>
+
+  </div>
+</div>
+
+{% endblock %}

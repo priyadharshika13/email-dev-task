@@ -1,0 +1,43 @@
+{% extends "campaigns/base.html" %}
+{% block title %}Bounce Report{% endblock %}
+
+{% block content %}
+<div class="card neon-card">
+  <div class="card-content">
+    <span class="card-title">Bounce Records</span>
+
+    <div style="margin-bottom: 16px;">
+      <a href="{% url 'campaigns:bounce_report_csv' %}" class="btn btn-neon waves-effect">
+        <i class="material-icons left">file_download</i>
+        Download CSV
+      </a>
+    </div>
+
+    <table class="highlight responsive-table">
+      <thead>
+        <tr>
+          <th>Campaign</th>
+          <th>Recipient</th>
+          <th>Reason</th>
+          <th>Processed At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bounces %}
+        <tr>
+          <td>{{ b.campaign.name }} (ID: {{ b.campaign_id }})</td>
+          <td>{{ b.recipient_email }}</td>
+          <td class="red-text text-darken-1">{{ b.reason|default:"—" }}</td>
+          <td>{{ b.processed_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4">No bounce records found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+</div>
+{% endblock %}
