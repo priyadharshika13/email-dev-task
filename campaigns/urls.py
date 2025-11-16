@@ -20,5 +20,6 @@ urlpatterns = [
     path("recipients/<int:pk>/delete/", views.recipient_delete, name="recipient_delete"),
     path("bounces/", views.bounce_list, name="bounce_list"),
     path("bounces/report.csv", views.bounce_report_csv, name="bounce_report_csv"),
+    path("admin/email-settings/", views.email_settings_view, name="email_settings"),
 
 ]

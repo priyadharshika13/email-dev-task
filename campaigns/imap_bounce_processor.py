@@ -207,8 +207,6 @@ def mark_failed_recipient(
     try:
         campaign = Campaign.objects.get(pk=campaign_id)
         print(campaign.id)
-        if campaign.id == campaign_id:
-            send_campaign_report(campaign)
 
     except Campaign.DoesNotExist:
         print(f"[IMAP] No campaign with id={campaign_id}")
@@ -227,6 +225,11 @@ def mark_failed_recipient(
         cr.failure_reason = failure_reason[:500]
         cr.save(update_fields=["status", "failure_reason"])
         print(f"[IMAP] Marked FAILED: campaign={campaign_id}, email={recipient_email}")
+
+    if campaign.id == campaign_id:
+        print(campaign.id)
+        print(campaign_id)
+        send_campaign_report(campaign)
 
     # Store bounce record (1 per bounce email)
     BounceRecord.objects.create(

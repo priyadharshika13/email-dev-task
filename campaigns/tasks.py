@@ -66,17 +66,17 @@ def process_scheduled_campaigns():
             created_links = enqueue_recipients_for_campaign(campaign)
 
             # send emails (synchronous inside this task)
-            # sent, failed = send_campaign_now(campaign)
+            sent, failed = send_campaign_now(campaign)
 
             # if everything attempted, mark as completed
             campaign.status = "completed"
             campaign.save(update_fields=["status"])
 
             # (optional) you can log or create an audit record here
-            # print(
-            #     f"[AUTO] Campaign {campaign.id} ('{campaign.name}') "
-            #     f"processed: recipients added={created_links}, sent={sent}, failed={failed}"
-            # )
+            print(
+                f"[AUTO] Campaign {campaign.id} ('{campaign.name}') "
+                f"processed: recipients added={created_links}, sent={sent}, failed={failed}"
+            )
 
             process_bounces_for_campaign.apply_async(
                 args=[campaign.id],

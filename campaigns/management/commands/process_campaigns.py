@@ -3,6 +3,9 @@ from campaigns.services import process_due_campaigns
 
 
 class Command(BaseCommand):
+    """
+    Management command to process campaigns accordingly.
+    """
     help = "Process scheduled campaigns and send pending emails."
 
     def handle(self, *args, **options):
