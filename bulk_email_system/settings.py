@@ -139,8 +139,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "dharshikapriya09@gmail.com"
-EMAIL_HOST_PASSWORD = "dkmk heku ycrv lrvk"
+EMAIL_HOST_USER = "test@gmail.com"
+EMAIL_HOST_PASSWORD = "apppassword"
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
@@ -153,8 +153,8 @@ IMAP_PORT = 993
 IMAP_USE_SSL = True
 
 # Use the SAME account that sends mails, or a dedicated bounce inbox
-IMAP_USERNAME = os.getenv("IMAP_USERNAME", "dharshikapriya09@gmail.com")
-IMAP_PASSWORD = os.getenv("IMAP_PASSWORD", "dkmk heku ycrv lrvk")
+IMAP_USERNAME = os.getenv("IMAP_USERNAME", "test@gmail.com")
+IMAP_PASSWORD = os.getenv("IMAP_PASSWORD", "apppassword")
 
 from celery.schedules import crontab
 
