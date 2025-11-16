@@ -206,6 +206,10 @@ def mark_failed_recipient(
     """
     try:
         campaign = Campaign.objects.get(pk=campaign_id)
+        print(campaign.id)
+        if campaign.id == campaign_id:
+            send_campaign_report(campaign)
+
     except Campaign.DoesNotExist:
         print(f"[IMAP] No campaign with id={campaign_id}")
         return
@@ -292,7 +296,6 @@ def process_bounce_messages(mailbox: str = "INBOX") -> None:
 
         if campaign_id and failed_email:
             mark_failed_recipient(campaign_id, failed_email, failure_reason, message_id)
-            send_campaign_report(campaign_id)
         # mark as seen
         imap.store(msg_id, "+FLAGS", "\\Seen")
 
