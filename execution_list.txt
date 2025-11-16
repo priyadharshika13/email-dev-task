@@ -13,3 +13,9 @@ python manage.py createsuperuser
 python manage.py runserver
 celery -A bulk_email_system worker -l info --pool=solo
 celery -A bulk_email_system beat -l info
+
+In settings.py 
+add mail and app password
+admin_mail 
+
+We can have it call by .env for real time production saas
