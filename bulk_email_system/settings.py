@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -163,7 +163,17 @@ CELERY_BEAT_SCHEDULE = {
         "task": "campaigns.tasks.process_scheduled_campaigns",
         "schedule": 60.0,  # every 60 seconds
     },
+
+    "process-all-bounces-every-5-mins": {
+        "task": "campaigns.tasks.process_all_bounces",
+        "schedule": 300.0,  # every 5 minutes
+    },
+
 }
+
+CELERY_TIMEZONE = "Asia/Kolkata"
+CELERY_ENABLE_UTC = False
+
 
 
 

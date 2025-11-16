@@ -41,6 +41,7 @@ import email
 import re
 from django.conf import settings
 from .models import Campaign, CampaignRecipient, BounceRecord
+from .services import send_campaign_report
 
 # Pattern to extract campaign id from subject, e.g. "[CID:123]"
 CID_PATTERN = re.compile(r"\[CID:(\d+)\]")
@@ -291,7 +292,7 @@ def process_bounce_messages(mailbox: str = "INBOX") -> None:
 
         if campaign_id and failed_email:
             mark_failed_recipient(campaign_id, failed_email, failure_reason, message_id)
-
+            send_campaign_report(campaign_id)
         # mark as seen
         imap.store(msg_id, "+FLAGS", "\\Seen")
 

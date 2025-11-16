@@ -181,5 +181,29 @@
 
   </div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Initialize selects (if not done globally)
+    if (window.M) {
+      var selects = document.querySelectorAll('select');
+      M.FormSelect.init(selects);
+    }
+
+    // 🔥 Manually update file-path when a file is selected
+    const fileInput = document.querySelector('.file-field input[type="file"]');
+    const filePathInput = document.querySelector('.file-field .file-path');
+
+    if (fileInput && filePathInput) {
+      fileInput.addEventListener('change', function (e) {
+        const files = Array.from(e.target.files || []);
+        if (files.length) {
+          filePathInput.value = files.map(f => f.name).join(', ');
+        } else {
+          filePathInput.value = '';
+        }
+      });
+    }
+  });
+</script>
 
 {% endblock %}

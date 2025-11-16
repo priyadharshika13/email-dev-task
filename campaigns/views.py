@@ -178,6 +178,12 @@ def recipient_upload(request):
 
             summary = process_recipient_csv(file)
             recipients_created_or_updated = summary.get("recipients", [])
+            invalid_emails = summary.get("invalid_emails",[])
+            if invalid_emails:
+                messages.success(
+                request,
+                f"Invalid Emails '{invalid_emails}'. "
+                )
 
             if group and recipients_created_or_updated:
                 for r in recipients_created_or_updated:
@@ -194,6 +200,7 @@ def recipient_upload(request):
         .prefetch_related("groups")
         .order_by("-created_at")
     )
+
 
     # campaigns for the dropdown
     campaigns = Campaign.objects.order_by("-created_at")

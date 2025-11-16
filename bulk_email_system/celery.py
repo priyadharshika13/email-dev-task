@@ -5,4 +5,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bulk_email_system.settings')
 
 app = Celery('bulk_email_system')
 app.config_from_object('django.conf:settings', namespace='CELERY')
+app.conf.update(
+    timezone="Asia/Kolkata",
+    enable_utc=False,
+)
+
 app.autodiscover_tasks()

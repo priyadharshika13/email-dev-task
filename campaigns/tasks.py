@@ -7,14 +7,7 @@ from django.utils import timezone
 
 from .imap_bounce_processor import process_bounce_messages
 from .services import process_due_campaigns, enqueue_recipients_for_campaign
-
-
-@shared_task
-def process_due_campaigns_task():
-    """
-    Celery task wrapper around process_due_campaigns().
-    """
-    process_due_campaigns()
+from .imap_bounce_processor import process_bounce_messages
 
 from celery import shared_task
 from .services import process_due_campaigns, send_campaign_now
@@ -47,7 +40,8 @@ def process_scheduled_campaigns():
     - Send emails
     - Update status to 'completed' (or 'in_progress' while sending)
     """
-    now = timezone.now()
+    print(timezone.localtime(timezone.now()))
+    now = timezone.localtime(timezone.now())
 
     # pick all due campaigns
     due_campaigns = Campaign.objects.filter(
@@ -56,7 +50,11 @@ def process_scheduled_campaigns():
     )
 
     print("test")
-    print(due_campaigns)
+    print(now)
+    print(Campaign.objects.filter(
+        status="scheduled",
+        scheduled_time__lte=now,
+    ))
     for campaign in due_campaigns:
         with transaction.atomic():
             # mark as in_progress
@@ -79,5 +77,21 @@ def process_scheduled_campaigns():
                 f"[AUTO] Campaign {campaign.id} ('{campaign.name}') "
                 f"processed: recipients added={created_links}, sent={sent}, failed={failed}"
             )
+
+            process_bounces_for_campaign.apply_async(
+                args=[campaign.id],
+                countdown=120,  # 2 min later
+            )
+
+@shared_task
+def process_bounces_for_campaign(campaign_id=None):
+    """
+    Run IMAP bounce processing and mark failed recipients.
+
+    If your imap_bounce_processor supports campaign_id filtering, pass it through.
+    Otherwise you can ignore campaign_id in process_bounce_messages and just
+    process all recent bounces.
+    """
+    process_bounce_messages(mailbox="INBOX")
 
 
